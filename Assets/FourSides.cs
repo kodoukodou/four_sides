@@ -88,7 +88,7 @@ public class FourSides : EditorWindow
         EditorGUILayout.BeginVertical(GUI.skin.box);
         {
             center = EditorGUILayout.Vector3Field("*center", center);
-            render_size = EditorGUILayout.IntField("render_size", render_size);
+            render_size = EditorGUILayout.IntField("*render_size", render_size);
         }
         EditorGUILayout.EndVertical();
         under = EditorGUILayout.Toggle("*under", under);
@@ -117,10 +117,10 @@ public class FourSides : EditorWindow
                 //親子設定
                 var parent = new GameObject("CharaCamera").transform;
 
-                camera[0] = cam;
+                /*camera[0] = cam;
                 camera[0].targetTexture = rt[0];
                 camera[0].transform.parent = parent.transform;
-                camera[0].name = string.Format("{0}_cam", place[0]);
+                camera[0].name = string.Format("{0}_cam", place[0]);*/
 
                 //Mainカメラ
                 view = Camera.main;
@@ -151,6 +151,7 @@ public class FourSides : EditorWindow
                     camera[i].name = string.Format("{0}_cam", place[i]);
                     camera[i].targetTexture = rt[i];
                     camera[i].transform.parent = parent.transform;
+                    camera[i].backgroundColor = Color.black;
                     //板
                     pl[i]= Instantiate(plane);
                     pl[i].name = string.Format("{0}_plane", place[i]);
@@ -159,6 +160,7 @@ public class FourSides : EditorWindow
                     pl[i].GetComponent<MeshRenderer>().material = material[i];
                 }
 
+                DestroyImmediate(obj);
                 Under();
 
                 //親子設定
@@ -189,7 +191,7 @@ public class FourSides : EditorWindow
                 {
                     for (int i = 0; i < 4; i++)
                     {
-                        Destroy(rt[i]);
+                        rt[i].Release();
                         rt[i] = new RenderTexture(render_size, render_size, 0);
                         rt[i].Create();
                         rt[i].name = string.Format("{0}_rt", place[i]);
