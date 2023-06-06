@@ -78,7 +78,7 @@ public class FourSides : EditorWindow
 
         EditorGUILayout.BeginHorizontal(GUI.skin.box);
         {
-            if (GUILayout.Button("set"))
+            if (GUILayout.Button("Set"))
             {
                 current_render_size = render_size;
 
@@ -180,7 +180,7 @@ public class FourSides : EditorWindow
             }
 
             //’u‚«’¼‚µ
-            if (GUILayout.Button("*replace"))
+            if (GUILayout.Button("*Replace"))
             {
                 Under();
 
