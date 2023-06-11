@@ -26,6 +26,7 @@ public class FourSides : EditorWindow
     private float light_height=(float)0.8;
     private float light_distance= (float)6.5;
 
+    Vector2 scrollPosition;
 
     [MenuItem("MyMenu/Create/FourSides")]
     static void init()
@@ -40,43 +41,42 @@ public class FourSides : EditorWindow
         place[2] = "front";
         place[3] = "left";
     }
-    private void OnGUI()
+    void OnGUI()
     {
-        EditorGUILayout.BeginVertical(GUI.skin.box);
+        scrollPosition = GUILayout.BeginScrollView(scrollPosition, false, false);
+
+        using (new EditorGUILayout.VerticalScope())
         {
             avater = EditorGUILayout.ObjectField("avater", avater, typeof(GameObject), true) as GameObject;
             plane = EditorGUILayout.ObjectField("plane", plane, typeof(GameObject), true) as GameObject;
         }
-        EditorGUILayout.EndVertical();
 
         EditorGUILayout.LabelField("Chara_Camera");
 
-        EditorGUILayout.BeginVertical(GUI.skin.box);
+        using (new EditorGUILayout.VerticalScope())
         {
             height = EditorGUILayout.FloatField("*height", height);
             cam_size = EditorGUILayout.FloatField("*cam_size", cam_size);
         }
-        EditorGUILayout.EndVertical();
 
         EditorGUILayout.LabelField("Light");
 
-        EditorGUILayout.BeginVertical(GUI.skin.box);
+        using (new EditorGUILayout.VerticalScope())
         {
             light_height = EditorGUILayout.FloatField("*height", light_height);
             light_distance = EditorGUILayout.FloatField("*distance", light_distance);
         }
-        EditorGUILayout.EndVertical();
 
         EditorGUILayout.LabelField("Plane");
-        EditorGUILayout.BeginVertical(GUI.skin.box);
+        using (new EditorGUILayout.VerticalScope())
         {
             center = EditorGUILayout.Vector3Field("*center", center);
             render_size = EditorGUILayout.IntField("*render_size", render_size);
         }
-        EditorGUILayout.EndVertical();
+
         under = EditorGUILayout.Toggle("*under", under);
 
-        EditorGUILayout.BeginHorizontal(GUI.skin.box);
+        using (new EditorGUILayout.HorizontalScope())
         {
             if (GUILayout.Button("Set"))
             {
@@ -206,7 +206,7 @@ public class FourSides : EditorWindow
                 view.transform.position = center + new Vector3(0, (float)2.62, 0);
             }
         }
-        EditorGUILayout.EndHorizontal();
+        GUILayout.EndScrollView();
     }
 
     void Under()

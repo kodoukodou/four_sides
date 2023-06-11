@@ -4,25 +4,36 @@ using System.Collections;
 using System.Collections.Generic;
 using System;
 using UnityEngine.UI;
+using System.Linq;
 
 public class CamWindow : EditorWindow
 {
 	Camera Main;
-	Camera front_cam;
-	Camera right_cam;
-	Camera back_cam;
-	Camera left_cam;
 	RenderTexture ren;
-	int count=0;
+	int count = 0;
+	int current;
+	//Texture[] tex;
+	RenderTexture[] rt;
+
 	// 全カメラを格納する箱
 	private Camera[] cameras;
 	// カメラ用のテーブル
-	public Dictionary<int, Camera> table;
+	//public Dictionary<int, Camera> table;
 
 	String[] names;
 
 	Vector2 scrollPosition;
-	//[MenuItem("MyMenu/Create/CamWindow")]
+
+	int size = 100;
+	//int tate = 1;
+	int yoko = 3;
+
+	List<Camera> camList = new List<Camera>();
+	List<RenderTexture> rtList ;
+	//List<Texture> texList;
+	List<int> N;
+
+	[MenuItem("MyMenu/Create/CamWindow")]
 	public static void Init()
 	{
 		CamWindow.GetWindow<CamWindow>(false, "CamWindow");
@@ -30,8 +41,9 @@ public class CamWindow : EditorWindow
 
 	void Awake()
 	{
-		count = Camera.allCameras.Length;
-		//public RenderTexture[] rt = new RenderTexture[count];
+		Main = Camera.main;
+		Main.enabled = true;
+		N = new List<int>();
 	}
 
 	private void Update()
@@ -40,39 +52,32 @@ public class CamWindow : EditorWindow
 	}
 	void OnGUI()
 	{
-		front_cam = EditorGUILayout.ObjectField("front_cam", front_cam, typeof(Camera), true) as Camera;
-		right_cam = EditorGUILayout.ObjectField("right_cam", right_cam, typeof(Camera), true) as Camera;
-		back_cam = EditorGUILayout.ObjectField("back_cam", back_cam, typeof(Camera), true) as Camera;
-		left_cam = EditorGUILayout.ObjectField("left_cam", left_cam, typeof(Camera), true) as Camera;
-
-		//ren = EditorGUILayout.ObjectField("ren", ren, typeof(RenderTexture), true) as RenderTexture;
-
-		RenderTexture[] rt = new RenderTexture[count];
-		Texture[] tex = new Texture[count];
-		//Camera[] cam= new Camera[count];
-
 		scrollPosition = GUILayout.BeginScrollView(scrollPosition, false, false);
 
 		if (GUILayout.Button("CameraLoad"))
 		{
-			Main = Camera.main;
+			current = Camera.allCameras.Length;
 			Main.enabled = false;
-			//count = Camera.allCameras.Length;
+			count = Camera.allCameras.Length;
+			rt = new RenderTexture[count];
+			//tex = new Texture[count];
 
 			// シーンないの全てのカメラの数を配列の長さにする
+			//List<Camera> cameras = new List<Camera>();
 			cameras = new Camera[count];
-			//names = new String[count];
+			names = new String[count];
 			// シーンないの全てのカメラを取得(enable=trueのみ)
 			Camera.GetAllCameras(cameras);
 			// テーブルの初期化
-			table = new Dictionary<int, Camera>();
+			//table = new Dictionary<int, Camera>();
+
 			// テーブルに全てのカメラを登録
 			for (int i = 0; i < count; i++)
 			{
 				// カメラの名前を取得
-				//names[i] = cameras[i].gameObject.name;
+				names[i] = cameras[i].gameObject.name;
 				// テーブルに登録
-				table.Add(i, cameras[i]);
+				//table.Add(i, cameras[i]);
 			}
 
 			for (int i = 0; i < count; i++)
@@ -80,79 +85,157 @@ public class CamWindow : EditorWindow
 				rt[i] = new RenderTexture(540, 540, 0);
 				rt[i].Create();
 				//rt[i].name = string.Format("{0}_rt", place[i]);
-			}
-			for (int i = 0; i < count; i++)
-			{
-				table[i].targetTexture = rt[i];
-			}
-			Main.enabled = true;
-
-			for (int i = 0; i < count; i++)
-			{
-				/*if (GUILayout.Button(front, GUILayout.Width(100), GUILayout.Height(100)))
-				{
-					Camera.main.transform.position = front_cam.transform.position;
-					Camera.main.transform.rotation = front_cam.transform.rotation;
-				}*/
-
-				/*tex[i] = (Texture)rt[i];
-				EditorGUIUtility.SetIconSize(Vector2.one * 100);
-				if (GUILayout.Button(tex[i], GUILayout.Width(100), GUILayout.Height(100)))
-				{
-					Debug.Log(tex[0]);
-				}*/
+				cameras[i].targetTexture = rt[i];
 			}
 		}
+		Main.enabled = true;
 
-		//Texture front= (Texture)ren;
-
-		//if (count != 0)
-		//{
-			EditorGUILayout.BeginHorizontal(GUI.skin.box);
+		if (GUILayout.Button("Reset"))
+		{
+			foreach (Camera camItem in cameras)
 			{
-				EditorGUIUtility.SetIconSize(Vector2.one * 100);
+				Debug.Log(camItem);
+			}
 
-				for (int i = 0; i < 4; i++)
+			for (int i = 0; i < Camera.allCameras.Length ; i++)
+			{
+				//Debug.Log(cameras[i]);
+				if (cameras[i] == null)
 				{
-					tex[i] = (Texture)rt[i];
-					EditorGUIUtility.SetIconSize(Vector2.one * 100);
+					Debug.Log("OK");
+					N.Add(i);
+				}
+			}
+			//Debug.Log(N.Count);
+			foreach (int nItem in N)
+			{
+				//Debug.Log(nItem);
+			}
+			for (int i = 0; i < N.Count; i++)
+			{
+				rt[N[i]].Release();
+				rt = rt.Where(value => value != rt[N[i]]).ToArray();
+			}
+			cameras = cameras.Where(value => value != null).ToArray();
+			N.Clear();
 
-					if (GUILayout.Button((Texture)rt[i], GUILayout.Width(100), GUILayout.Height(100)))
+			for (int i = 0; i < count; i++)
+			{
+				cameras[i].targetTexture = rt[i];
+			}
+
+			/*N = new List<int>();
+
+			/*foreach (Camera camItem in cameras)
+			{
+				Debug.Log(camItem);
+			}
+			foreach (RenderTexture rtItem in rt)
+			{
+				Debug.Log(rtItem);
+			}//
+			Debug.Log(Camera.allCameras.Length);
+			Debug.Log(current);
+
+			if (current != Camera.allCameras.Length)
+			{
+			//current = Camera.allCameras.Length-1;
+
+			/*foreach (Camera camItem in cameras)
+			{
+				Debug.Log(camItem);
+			}//
+
+			for (int i = 0; i < Camera.allCameras.Length - 1; i++)
+			{
+				if (cameras[i] == null)
+				{
+					N.Add(i);
+					//rt[i].Release();
+					//rt = rt.Where(value => value != rt[i]).ToArray();
+
+					//tex = tex.Where(value => value != tex[i]).ToArray();
+				}
+			}
+
+			foreach (int nItem in N)
+			{
+				//Debug.Log(nItem);
+			}
+
+			for (int i = 0; i < N.Count; i++)
+			{
+				rt[N[i]].Release();
+				rt = rt.Where(value => value != rt[N[i]]).ToArray();
+			}
+
+			//rt = rt.Where(value => value != null).ToArray();
+			cameras = cameras.Where(value => value != null).ToArray();
+			}*/
+		}
+		using (new EditorGUILayout.VerticalScope())
+		{
+			size = EditorGUILayout.IntField("size", size);
+		}
+
+		if (rt != null)
+		{
+			int tate = rt.Length / yoko;
+			int amari = rt.Length % yoko;
+			int k = 0;
+
+			using (new EditorGUILayout.VerticalScope())
+			{
+				for (int i = 0; i < tate; i++)
+				{
+					using (new EditorGUILayout.HorizontalScope())
 					{
-						Camera.main.transform.position = table[i].transform.position;
-						Camera.main.transform.rotation = table[i].transform.rotation;
+						EditorGUIUtility.SetIconSize(Vector2.one * size);
+						for (int j = 0; j < yoko; j++)
+						{
+							using (new EditorGUILayout.VerticalScope())
+							{
+								EditorGUIUtility.SetIconSize(Vector2.one * size);
+
+								//EditorGUILayout.LabelField(string.Format("{0}", names[i]));
+								EditorGUILayout.LabelField("Plane");
+								if (GUILayout.Button((Texture)rt[k], GUILayout.Width(size), GUILayout.Height(size)))
+								//if (GUILayout.Button((Texture)rt[k], GUILayout.Width(100), GUILayout.Height(100)))
+								{
+									Camera.main.transform.position = cameras[k].transform.position;
+									Camera.main.transform.rotation = cameras[k].transform.rotation;
+								}
+							}
+							k++;
+						}
+
 					}
 				}
-
-				/*Texture right = (Texture)AssetDatabase.LoadAssetAtPath("Assets/right.renderTexture", typeof(Texture));
-				EditorGUIUtility.SetIconSize(Vector2.one * 100);
-				if (GUILayout.Button(right, GUILayout.Width(100), GUILayout.Height(100)))
+				using (new EditorGUILayout.HorizontalScope())
 				{
-					Camera.main.transform.position = right_cam.transform.position;
-					Camera.main.transform.rotation = right_cam.transform.rotation;
+					EditorGUIUtility.SetIconSize(Vector2.one * size);
+					for (int j = 0; j < amari; j++)
+					{
+						using (new EditorGUILayout.VerticalScope())
+						{
+							EditorGUIUtility.SetIconSize(Vector2.one * size);
+
+							//EditorGUILayout.LabelField(string.Format("{0}", names[i]));
+							EditorGUILayout.LabelField("Plane");
+							if (GUILayout.Button((Texture)rt[k], GUILayout.Width(size), GUILayout.Height(size)))
+							//if (GUILayout.Button((Texture)rt[k], GUILayout.Width(100), GUILayout.Height(100)))
+							{
+								Camera.main.transform.position = cameras[k].transform.position;
+								Camera.main.transform.rotation = cameras[k].transform.rotation;
+							}
+						}
+						k++;
+					}
+
 				}
-
-				Texture back = (Texture)AssetDatabase.LoadAssetAtPath("Assets/back.renderTexture", typeof(Texture));
-				EditorGUIUtility.SetIconSize(Vector2.one * 100);
-				if (GUILayout.Button(back, GUILayout.Width(100), GUILayout.Height(100))) 
-				{
-					Camera.main.transform.position = back_cam.transform.position;
-					Camera.main.transform.rotation = back_cam.transform.rotation;
-				}
-
-				Texture left = (Texture)AssetDatabase.LoadAssetAtPath("Assets/left.renderTexture", typeof(Texture));
-				EditorGUIUtility.SetIconSize(Vector2.one * 100);
-				if (GUILayout.Button(left, GUILayout.Width(100), GUILayout.Height(100))) 
-				{
-					Camera.main.transform.position = left_cam.transform.position;
-					Camera.main.transform.rotation = left_cam.transform.rotation;
-				}*/
+				EditorGUIUtility.SetIconSize(Vector2.zero);
 			}
-			EditorGUILayout.EndHorizontal();
-
-			EditorGUIUtility.SetIconSize(Vector2.zero);
-
 			GUILayout.EndScrollView();
-		//}
+		}
 	}
 }
