@@ -17,6 +17,9 @@ public class CamWindow : EditorWindow
 
 	// 全カメラを格納する箱
 	private Camera[] cameras;
+	private Camera[] cameras4;
+	List<Camera> cameras2;
+	List<Camera> cameras3;
 	// カメラ用のテーブル
 	//public Dictionary<int, Camera> table;
 
@@ -39,11 +42,10 @@ public class CamWindow : EditorWindow
 		CamWindow.GetWindow<CamWindow>(false, "CamWindow");
 	}
 
-	void Awake()
+	void OnEnable()
 	{
 		Main = Camera.main;
 		Main.enabled = true;
-		N = new List<int>();
 	}
 
 	private void Update()
@@ -52,6 +54,7 @@ public class CamWindow : EditorWindow
 	}
 	void OnGUI()
 	{
+		N = new List<int>();
 		scrollPosition = GUILayout.BeginScrollView(scrollPosition, false, false);
 
 		if (GUILayout.Button("CameraLoad"))
@@ -87,42 +90,55 @@ public class CamWindow : EditorWindow
 				//rt[i].name = string.Format("{0}_rt", place[i]);
 				cameras[i].targetTexture = rt[i];
 			}
+			cameras4 = cameras;
 		}
 		Main.enabled = true;
 
 		if (GUILayout.Button("Reset"))
 		{
-			foreach (Camera camItem in cameras)
+			//cameras2=new List<Camera> ();
+			//cameras2 = new List(cameras) ;
+			//結果を入れるコレクション
+			//.NET Framework 2.0以降ならば、List<int>を使った方が良い
+			List<int> resultList =new List<int>();
+
+			cameras4 = cameras4.Where(value => value != null).ToArray();
+
+			foreach (var i in cameras4)
 			{
-				Debug.Log(camItem);
+				//Debug.Log(i);
 			}
 
-			for (int i = 0; i < Camera.allCameras.Length ; i++)
-			{
-				//Debug.Log(cameras[i]);
-				if (cameras[i] == null)
+			for (int i = 0; i < cameras.Length; i++)
+            {
+				//ary2に含まれていないか確認する
+				if (Array.IndexOf(cameras4, cameras[i]) < 0)
 				{
-					Debug.Log("OK");
-					N.Add(i);
+					//含まれていなければ、リストに加える
+					resultList.Add(i);
 				}
 			}
-			//Debug.Log(N.Count);
-			foreach (int nItem in N)
-			{
-				//Debug.Log(nItem);
-			}
-			for (int i = 0; i < N.Count; i++)
-			{
-				rt[N[i]].Release();
-				rt = rt.Where(value => value != rt[N[i]]).ToArray();
-			}
-			cameras = cameras.Where(value => value != null).ToArray();
-			N.Clear();
 
-			for (int i = 0; i < count; i++)
+			//結果を配列に変換する
+			int[] resultArray = resultList.ToArray(); ;
+
+			foreach (var i in resultArray)
 			{
-				cameras[i].targetTexture = rt[i];
+				Debug.Log(i);
 			}
+
+			int k = 0;
+
+			for (int i = 0; i < resultArray.Length; i++)
+			{
+				rt[resultArray[i]-k].Release();
+				rt = rt.Where(value => value != rt[resultArray[i] - k]).ToArray();
+				k++;
+			}
+
+			cameras = cameras.Where(value => value != null).ToArray();
+
+			Array.Clear(resultArray, 0, resultArray.Length);
 
 			/*N = new List<int>();
 
