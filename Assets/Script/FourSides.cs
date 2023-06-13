@@ -23,8 +23,8 @@ public class FourSides : EditorWindow
     private int current_render_size ;
     private bool under = false;
 
-    private float light_height=(float)0.8;
-    private float light_distance= (float)6.5;
+    private float light_height=(float)0;
+    private float light_distance= (float)2;
 
     Vector2 scrollPosition;
 
@@ -45,40 +45,55 @@ public class FourSides : EditorWindow
     {
         scrollPosition = GUILayout.BeginScrollView(scrollPosition, false, false);
 
-        using (new EditorGUILayout.VerticalScope())
+        GUILayout.Space(10);
+
+        using (new EditorGUILayout.VerticalScope(GUI.skin.box))
         {
             avater = EditorGUILayout.ObjectField("avater", avater, typeof(GameObject), true) as GameObject;
             plane = EditorGUILayout.ObjectField("plane", plane, typeof(GameObject), true) as GameObject;
         }
 
-        EditorGUILayout.LabelField("Chara_Camera");
+        GUILayout.Space(10);
 
-        using (new EditorGUILayout.VerticalScope())
+        using (new EditorGUILayout.VerticalScope(GUI.skin.box))
         {
-            height = EditorGUILayout.FloatField("*height", height);
-            cam_size = EditorGUILayout.FloatField("*cam_size", cam_size);
+            EditorGUILayout.LabelField("Chara_Camera");
+
+            using (new EditorGUILayout.VerticalScope())
+            {
+                height = EditorGUILayout.FloatField("height", height);
+                cam_size = EditorGUILayout.FloatField("cam_size", cam_size);
+            }
+
+            GUILayout.Space(10);
+
+            EditorGUILayout.LabelField("Light");
+
+            using (new EditorGUILayout.VerticalScope())
+            {
+                light_height = EditorGUILayout.FloatField("height", light_height);
+                light_distance = EditorGUILayout.FloatField("distance", light_distance);
+            }
+
+            GUILayout.Space(10);
+
+            EditorGUILayout.LabelField("Plane");
+            using (new EditorGUILayout.VerticalScope())
+            {
+                center = EditorGUILayout.Vector3Field("center", center);
+                render_size = EditorGUILayout.IntField("render_size", render_size);
+            }
+
+            GUILayout.Space(10);
+
+            under = EditorGUILayout.Toggle("under", under);
         }
 
-        EditorGUILayout.LabelField("Light");
-
-        using (new EditorGUILayout.VerticalScope())
-        {
-            light_height = EditorGUILayout.FloatField("*height", light_height);
-            light_distance = EditorGUILayout.FloatField("*distance", light_distance);
-        }
-
-        EditorGUILayout.LabelField("Plane");
-        using (new EditorGUILayout.VerticalScope())
-        {
-            center = EditorGUILayout.Vector3Field("*center", center);
-            render_size = EditorGUILayout.IntField("*render_size", render_size);
-        }
-
-        under = EditorGUILayout.Toggle("*under", under);
+        GUILayout.Space(10);
 
         using (new EditorGUILayout.HorizontalScope())
         {
-            if (GUILayout.Button("Set"))
+            if (GUILayout.Button("Set", GUILayout.Width(150), GUILayout.Height(50)))
             {
                 current_render_size = render_size;
 
@@ -103,7 +118,7 @@ public class FourSides : EditorWindow
 
                 // Add the light component
                 Light lightComp = lightGameObject.AddComponent<Light>();
-                lightComp.type = LightType.Directional;
+                lightComp.type = LightType.Point;
 
 
                 //êeéqê›íË
@@ -155,6 +170,7 @@ public class FourSides : EditorWindow
                     }else
                     {
                         light[i] = Instantiate(lightGameObject);
+                        light[i].GetComponent<Light>().type = LightType.Directional;
                         light[i].name = "view_light";
                         light[i].transform.parent = parent2.transform;
                         light[i].transform.rotation = Quaternion.Euler(90, 0, 0);
@@ -180,7 +196,7 @@ public class FourSides : EditorWindow
             }
 
             //íuÇ´íºÇµ
-            if (GUILayout.Button("*Replace"))
+            if (GUILayout.Button("Replace", GUILayout.Width(150), GUILayout.Height(50)))
             {
                 Under();
 
