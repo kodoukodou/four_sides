@@ -206,6 +206,7 @@ public class FourSides : EditorWindow
                 view.transform.position = center + new Vector3(0, (float)2.62, 0);
             }
         }
+
         GUILayout.EndScrollView();
     }
 
